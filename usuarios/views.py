@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -20,15 +22,16 @@ from usuarios.models import Aluno
 
 #CBV
 
+@login_required
 def dashboard(request):
     return render(request, 'usuarios/aluno/dashboard.html')
 
-class AlunoListView(ListView):
+class AlunoListView(LoginRequiredMixin, ListView):
     model = Aluno
     template_name = 'usuarios/aluno/lista.html'
     context_object_name = 'alunos'
 
-
+@login_required
 def criar_aluno(request):
     if request.method == 'POST':
         user_form = UsuarioForm(request.POST)
@@ -53,6 +56,7 @@ def criar_aluno(request):
             'aluno_form' : aluno_form,
         })
 
+@login_required
 def editar_aluno(request, pk):
     aluno = get_object_or_404(Aluno, pk=pk)
     if request.method == 'POST':
@@ -69,13 +73,12 @@ def editar_aluno(request, pk):
     return render(request, 'usuarios/aluno/form.html',
                   {'aluno_form': aluno_form})
 
-
-class AlunoDetalhes(DetailView):
+class AlunoDetalhes(LoginRequiredMixin , DetailView):
     model = Aluno
     template_name = 'usuarios/aluno/detalhe.html'
     context_object_name = 'aluno'
 
-
+@login_required
 @require_POST
 def excluir_aluno(request, pk):
     aluno = get_object_or_404(Aluno, pk=pk)
